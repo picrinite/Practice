@@ -1,0 +1,96 @@
+/* Question
+Given a binary tree, return the inorder traversal of its nodes' values.
+
+For example:
+Given binary tree {1,#,2,3},
+   1
+    \
+     2
+    /
+   3
+return [1,3,2].
+
+*/
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include  <vector>
+#include <queue>
+#include <stack>
+using namespace std;
+
+struct ListNode {
+	int val;
+	ListNode *next;
+	ListNode(int x) : val(x), next(NULL) {}
+};
+struct TreeNode {
+	int val;
+	TreeNode *left;
+	TreeNode *right;
+	TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+/*
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode *root) {
+        vector<int> res, vec_left, vec_right;
+        if( !root )
+            return res;
+        vec_left = inorderTraversal( root->left );
+        vec_right = inorderTraversal( root->right );
+        res.insert( res.end() , vec_left.begin(), vec_left.end());
+        res.push_back( root->val );
+        res.insert( res.end() , vec_right.begin(), vec_right.end());
+        return res;
+    }
+};
+*/
+//102815
+class Solution {
+public:
+	vector<int> inorderTraversal(TreeNode* root) {
+		vector<int> ret;
+		if (!root)
+			return ret;
+		stack<TreeNode*>  st;
+		TreeNode * pointer = root;
+		while (!st.empty() || pointer) {
+			if (pointer) {
+				st.push(pointer);
+				pointer = pointer->left;
+			}
+			else {
+				pointer = st.top();
+				ret.push_back(pointer->val);
+				st.pop();
+				pointer = pointer->right;
+			}
+		}
+		return ret;
+	}
+};
+int main(){
+	Solution s;
+	/*
+
+	 3
+	/ \
+   9  20
+     /   \
+ 	15   7
+	*/
+	TreeNode three( 3 ),nine( 9 ), twenty( 20 ), fifteen( 15 ), seven( 7 ), eight(8);
+	three.left = &nine;
+	three.right = &twenty;
+	twenty.left = &fifteen;
+	twenty.right = &seven;
+	nine.right = &eight;
+	vector<int> res;
+	res = s.inorderTraversal( &three );
+	for( int i = 0; i < res.size() ; ++i ){
+		cout << res[i] << "," ;
+	}
+	return 0;
+}
