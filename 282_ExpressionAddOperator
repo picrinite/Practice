@@ -1,0 +1,40 @@
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <unordered_set>
+#include <unordered_map>
+using namespace std;
+//reference:   http://www.cnblogs.com/grandyang/p/4814506.html
+// 110615
+class Solution {
+	void dfs(string num, int target,  long long curr,  long long diff, string out, vector<string> &ret) {
+		if (!num.size() && curr == target) {
+			ret.push_back(out);
+			return;
+		}
+		for (int i = 1; i <= num.size(); ++i) {
+			string sCurr = num.substr(0, i);
+			if (sCurr.length() > 1 && sCurr[0] == '0')
+				return;
+			long long nextNum = stoll(sCurr);
+			string sNext = num.substr(i);
+			if (out.length()) {
+				dfs(sNext, target, curr + nextNum, nextNum, out + "+" + sCurr, ret);
+				dfs(sNext, target, curr - nextNum, -nextNum, out + "-" + sCurr, ret);
+				dfs(sNext, target, curr - diff + diff * nextNum, diff * nextNum, out + "*" + sCurr, ret);
+			}
+			else
+				dfs(sNext, target, nextNum, nextNum, sCurr, ret);
+		}
+	}
+public:
+	vector<string> addOperators(string num, int target) {
+		vector<string> ret;
+		dfs(num, target, 0, 0, "", ret);
+		return ret;
+	}
+};
