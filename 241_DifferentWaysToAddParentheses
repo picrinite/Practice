@@ -1,0 +1,88 @@
+/* Question
+Given a string of numbers and operators, return all possible results from computing all the different possible ways to group numbers and operators. The valid operators are +, - and *.
+Example 1
+Input: "2-1-1".
+
+((2-1)-1) = 0
+(2-(1-1)) = 2
+Output: [0, 2]
+
+
+Example 2
+Input: "2*3-4*5"
+
+(2*(3-(4*5))) = -34
+((2*3)-(4*5)) = -14
+((2*(3-4))*5) = -10
+(2*((3-4)*5)) = -10
+(((2*3)-4)*5) = 10
+Output: [-34, -14, -10, -10, 10]
+*/
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <unordered_set>
+#include <unordered_map>
+using namespace std;
+//110715
+class Solution {
+	vector<int> getCB(string &input, int start, int end, vector<int> &breaks, int indexFirstOperator, int indexLastOperator) {
+		vector<int> ret;
+		if (indexFirstOperator > indexLastOperator) {
+			ret.push_back(stoi(input.substr(start, end - start + 1)));
+			return ret;
+		}
+		vector<int> vecLeft, vecRight;
+		for (int i = indexFirstOperator; i <= indexLastOperator; ++i) {
+			int pos = breaks[i];
+			vecLeft = getCB(input, start, pos - 1, breaks, indexFirstOperator, i - 1);
+			vecRight = getCB(input, pos + 1, end, breaks, i + 1, indexLastOperator);
+			for(int & numA : vecLeft)
+				for (int & numB : vecRight) {
+					switch (input[pos]) {
+					case('-'):
+						ret.push_back(numA - numB);
+						break;
+					case('+') :
+						ret.push_back(numA + numB);
+						break;
+					case('*') :
+						ret.push_back(numA * numB);
+						break;
+					}
+				}
+		}
+		return ret;
+	}
+public:
+	vector<int> diffWaysToCompute(string input) {
+		vector<int> breaks;
+		for (int i = 0; i < input.length(); ++i) {
+			if (input[i] < '0' || input[i] > '9')
+				breaks.push_back(i);
+		}
+		if (breaks.empty()) {
+			vector<int> ret;
+			if(input.length())
+				ret.push_back(stoi(input));
+			return ret;
+		}
+		return getCB(input, 0, input.length() - 1, breaks, 0, breaks.size() - 1);
+	}
+};
+
+
+int main() {
+	Solution s;
+	vector<int> res;
+	//res = s.diffWaysToCompute("2-1-1");  //  [0, 2]
+	//res = s.diffWaysToCompute("2*3-4*5");  //  [-34, -14, -10, -10, 10]
+	res = s.diffWaysToCompute("");
+	for (int &num : res)
+		cout << num << ", ";
+
+}
