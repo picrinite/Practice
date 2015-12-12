@@ -1,0 +1,124 @@
+//http://dsalgo.openjudge.cn/201409week9/1/
+/*
+总时间限制: 1000ms 内存限制: 65536kB
+描述
+给出三维空间中的n个点（不超过10个）,求出n个点两两之间的距离,并按距离由大到小依次输出两个点的坐标及它们之间的距离。
+输入
+输入包括两行，第一行包含一个整数n表示点的个数，第二行包含每个点的坐标(坐标都是整数)。点的坐标的范围是0到100，输入数据中不存在坐标相同的点。
+输出
+对于大小为n的输入数据，输出n*(n-1)/2行格式如下的距离信息：
+(x1,y1,z1)-(x2,y2,z2)=距离
+其中距离保留到数点后面2位。
+(用cout输出时保留到小数点后2位的方法:cout<<fixed<<setprecision(2)<<x)
+样例输入
+4
+0 0 0 1 0 0 1 1 0 1 1 1
+样例输出
+(0,0,0)-(1,1,1)=1.73
+(0,0,0)-(1,1,0)=1.41
+(1,0,0)-(1,1,1)=1.41
+(0,0,0)-(1,0,0)=1.00
+(1,0,0)-(1,1,0)=1.00
+(1,1,0)-(1,1,1)=1.00
+
+1. 对于一行输出中的两个点(x1,y1,z1)和(x2,y2,z2)，点(x1,y1,z1)在输入数据中应出现在点(x2,y2,z2)的前面。
+
+比如输入：
+2
+0 0 0 1 1 1
+输出是：
+(0,0,0)-(1,1,1)=1.73
+但是如果输入：
+2
+1 1 1 0 0 0
+输出应该是：
+(1,1,1)-(0,0,0)=1.73
+
+2. 如果有两对点p1,p2和p3,p4的距离相同，则先输出在输入数据中靠前的点对。
+
+比如输入：
+3
+0 0 0 0 0 1 0 0 2
+输出是：
+(0,0,0)-(0,0,2)=2.00
+(0,0,0)-(0,0,1)=1.00
+(0,0,1)-(0,0,2)=1.00
+如果输入变成：
+3
+0 0 2 0 0 1 0 0 0
+则输出应该是：
+(0,0,2)-(0,0,0)=2.00
+(0,0,2)-(0,0,1)=1.00
+(0,0,1)-(0,0,0)=1.00
+*/
+#include <cmath>
+#include <algorithm>
+#include <iostream>
+#include <vector>
+#include <iomanip>
+using namespace std;
+
+class Point {
+public:
+	int x, y, z;
+	int nOrder;
+	Point(int _x, int _y, int _z, int n) :
+		x(_x), y(_y), z(_z), nOrder(n) {
+	}
+	//friend ostream & operator>>(ostream &, const Point &);
+};
+
+class PointPair {
+public:
+	Point a, b;
+	double distance;
+	// A occurs before B
+	PointPair(Point A, Point B): a(A), b(B) {
+		distance = sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2) + pow(a.z - b.z, 2));
+	}
+	//friend ostream & operator<<(ostream & out, const PointPair &);
+};
+
+
+ostream & operator<<(ostream &out, const Point &p) {
+	out << "(" << p.x << "," << p.y << "," << p.z << ")";
+	return out;
+}
+
+ostream & operator<<(ostream &out, const PointPair &pp) {
+	out << pp.a << "-" << pp.b << "=";
+	out << fixed << setprecision(2) << pp.distance;
+	return out;
+}
+
+struct MyCompare {
+	bool operator()(const PointPair & p1, const PointPair & p2) {
+		if (p1.distance > p2.distance)
+			return true;
+		else if (p1.distance < p2.distance)
+			return false;
+		if (p1.a.nOrder > p2.a.nOrder)
+			return true;
+		else if (p1.a.nOrder < p2.a.nOrder)
+			return false;
+		return p1.b.nOrder > p2.b.nOrder;
+	}
+};
+
+int main() {
+	int n, x, y, z;
+	cin >> n;
+	vector<Point> pArr;
+	while (n--) {
+		cin >> x >> y >> z;
+		pArr.push_back(Point(x, y, z, n));
+	}
+	vector<PointPair>  ppArr;
+	int size = pArr.size();
+	for (int i = 0; i < size; ++i)
+		for (int j = i + 1; j < size; ++j)
+			ppArr.push_back(PointPair(pArr[i], pArr[j]));
+	sort(ppArr.begin(), ppArr.end(), MyCompare());
+	for (int i = 0; i < ppArr.size(); ++i)
+		cout << ppArr[i] << endl;
+}
