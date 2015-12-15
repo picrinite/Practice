@@ -1,0 +1,63 @@
+/* Question
+Given a string which contains only lowercase letters, remove duplicate letters so that every letter appear once and only once. You must make sure your result is the smallest in lexicographical order among all possible results.
+
+Example:
+Given "bcabc"
+Return "abc"
+
+Given "cbacdcbc"
+Return "acdb"
+*/
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <unordered_set>
+#include <unordered_map>
+using namespace std;
+//121315
+class Solution {
+public:
+	string removeDuplicateLetters(string s) {
+		if (s.empty())
+			return "";
+		unordered_map<char, int>  mp;
+		for (int i = 0; i < s.size(); ++i)
+			mp[s[i]] = i;
+		stack<char> st;
+		vector<int>  visited(26);  // record letters that have been pushed into the stack
+		for (int i = 0; i < s.size(); ++i) {
+			if (visited[s[i] - 'a'])     
+				continue;
+			while (!st.empty() && mp[st.top()] > i && s[i] < st.top()) {
+				visited[st.top() - 'a'] = 0;
+				st.pop();
+			}
+			st.push(s[i]);
+			visited[s[i] - 'a'] = 1;
+		}
+		string ret;
+		while (!st.empty()) {
+			ret += st.top();
+			st.pop();
+		}
+		reverse(ret.begin(), ret.end());
+		return ret;
+	}
+};
+
+int main() {
+	Solution s;
+	cout << s.removeDuplicateLetters("") << endl;
+	cout << s.removeDuplicateLetters("bcabc") << endl;
+	cout << s.removeDuplicateLetters("cbacdcbc") << endl;
+	cout << s.removeDuplicateLetters("abcde") << endl;
+	cout << s.removeDuplicateLetters("abdacbd") << endl;
+	cout << s.removeDuplicateLetters("eywdgenmcnzhztolafcfnirfpuxmfcenlppegrcalgxjlajxmphwidqqtrqnmmbssotoywfrtylm") << endl;
+	// expected: "chzafipuegjlxdqnbsotwrym"
+    // error Output:
+	// "chzafpuegjlxidqnbsotwrym"
+}
