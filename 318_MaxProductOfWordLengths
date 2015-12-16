@@ -1,0 +1,63 @@
+/* Question
+Given a string array words, find the maximum value of length(word[i]) * length(word[j]) where the two words do not share common letters. You may assume that each word will contain only lower case letters. If no such two words exist, return 0.
+
+Example 1:
+Given ["abcw", "baz", "foo", "bar", "xtfn", "abcdef"]
+Return 16
+The two words can be "abcw", "xtfn".
+
+Example 2:
+Given ["a", "ab", "abc", "d", "cd", "bcd", "abcd"]
+Return 4
+The two words can be "ab", "cd".
+
+Example 3:
+Given ["a", "aa", "aaa", "aaaa"]
+Return 0
+No such pair of words.
+*/
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <unordered_set>
+#include <unordered_map>
+using namespace std;
+//121515
+class Solution {
+	int wordToInt(string &str) {
+		int ret = 0;
+		for (char c : str)
+			ret |= (1 << c - 'a');
+		return ret;
+	}
+public:
+	int maxProduct(vector<string>& words) {
+		int size = words.size();
+		vector<int> arr(size);
+		for (int i = 0; i < size; ++i)
+			arr[i] = wordToInt(words[i]);
+		int ret = 0, product;
+		for (int i = 0; i < size; ++i) {
+			for (int j = i + 1; j < size; ++j) {
+				if (!(arr[i] & arr[j])) {
+					product = words[i].size() * words[j].size();
+					if (product > ret)
+						ret = product;
+				}
+			}
+		}
+		return ret;
+	}
+};
+
+int main() {
+	Solution s;
+	//vector<string> arr{ "abcw", "baz", "foo", "bar", "xtfn", "abcdef" };  //16
+	//vector<string> arr{ "a", "ab", "abc", "d", "cd", "bcd", "abcd" };   //4
+	vector<string> arr{ "a", "aa", "aaa", "aaaa" };   //0
+	cout << s.maxProduct(arr) << endl;
+}
