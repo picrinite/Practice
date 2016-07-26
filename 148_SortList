@@ -1,0 +1,67 @@
+/* Question
+Sort a linked list in O(n log n) time using constant space complexity.
+*/
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <unordered_set>
+#include <unordered_map>
+using namespace std;
+//111015
+
+struct ListNode {
+	int val;
+	ListNode *next;
+	ListNode(int x) : val(x), next(NULL) {}
+};
+//111015
+class Solution {
+public:
+	ListNode* sortList(ListNode* head) {
+		if (!head)
+			return NULL;
+		int pivot = head->val;
+		ListNode* nodeSameValue = head;
+		while (nodeSameValue->next && nodeSameValue->next->val == pivot)
+			nodeSameValue = nodeSameValue->next;
+		ListNode* dummy = new ListNode(0);;
+		ListNode* tailDummy = dummy;
+		ListNode* trav = nodeSameValue;
+		while (trav->next) {
+			if (trav->next->val >= pivot)
+				trav = trav->next;
+			else {
+				tailDummy->next = trav->next;
+				tailDummy = tailDummy->next;
+				trav->next = trav->next->next;
+			}
+		}
+		tailDummy->next = NULL;
+		dummy->next = sortList(dummy->next);
+		tailDummy = dummy;
+		while (tailDummy->next)
+			tailDummy = tailDummy->next;
+		tailDummy->next = head;
+		nodeSameValue->next = sortList(nodeSameValue->next);
+		return dummy->next;
+	}
+};
+
+int main() {
+	Solution s;
+	ListNode one(1), two(2), three(3), four(4), five(1);
+	one.next = &two;
+	two.next = &three;
+	three.next = &four;
+	four.next = &five;
+	ListNode *res;
+	res = s.sortList(&five);
+	while (res) {
+		cout << res->val << endl;
+		res = res->next;
+	}
+}

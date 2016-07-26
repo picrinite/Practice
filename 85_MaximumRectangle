@@ -1,0 +1,84 @@
+/* Question
+Given a 2D binary matrix filled with 0's and 1's, find the largest square containing all 1's and return its area.
+
+For example, given the following matrix:
+
+1 0 1 0 0
+1 0 1 1 1
+1 1 1 1 1
+1 0 0 1 0
+Return 4.
+*/
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <unordered_set>
+#include <unordered_map>
+using namespace std;
+
+class Solution {
+public:
+	int maximalRectangle(vector<vector<char>>& matrix) {
+		int nRow = matrix.size();
+		if (!nRow)
+			return 0;
+		int nColumn = matrix[0].size();
+		if (!nColumn)
+			return 0;
+		stack<int> st;  // record all rows of starting points that can reach current position
+		vector<stack<int> > arr(nColumn, st);
+		int ret = 0;
+		int x, y, area;
+		for (int i = 0; i < nRow; ++i) {
+			int indexFirstZero = -1;
+			for (int j = 0; j < nColumn; ++j) {
+				stack<int> &st = arr[j];
+				if (matrix[i][j] == '1') {
+					int py = i; // if a starting point's x-axis is indexFirstZero + 1, let py be its y-axis
+					while (!st.empty()) {
+						int top = st.top();
+						x = top % nColumn;
+						if (indexFirstZero < x)
+							break;
+						y = top / nColumn;
+						area = (j - x + 1) * (i - y);
+						if (area > ret)
+							ret = area;
+						py = y;
+						st.pop();
+					}
+					if(st.empty() || st.top() % nColumn > indexFirstZero + 1)
+						st.push(py * nColumn + indexFirstZero + 1);
+				}
+				else {
+					while (!st.empty()) {
+						int top = st.top();
+						y = top / nColumn;
+						x = top % nColumn;
+						area = (j - x + 1) * (i - y);
+						if (area > ret)
+							ret = area;
+						st.pop();
+					}	
+					indexFirstZero = j;
+				}			
+			}
+		}
+		for (int j = 0; j < nColumn; ++j) {
+			stack<int> &st = arr[j];
+			while (!st.empty()) {
+				y = st.top() / nColumn;
+				x = st.top() % nColumn;
+				area = (j - x + 1) * (nRow - y);
+				if (area > ret)
+					ret = area;
+				st.pop();
+			}
+		}
+		return ret;
+	}
+};

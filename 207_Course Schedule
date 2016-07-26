@@ -1,0 +1,84 @@
+/* Question
+There are a total of n courses you have to take, labeled from 0 to n - 1.
+
+Some courses may have prerequisites, for example to take course 0 you have to first take course 1, which is expressed as a pair: [0,1]
+
+Given the total number of courses and a list of prerequisite pairs, is it possible for you to finish all courses?
+
+For example:
+
+2, [[1,0]]
+There are a total of 2 courses to take. To take course 1 you should have finished course 0. So it is possible.
+
+2, [[1,0],[0,1]]
+There are a total of 2 courses to take. To take course 1 you should have finished course 0, and to take course 0 you should also have finished course 1. So it is impossible.
+*/
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <unordered_set>
+#include <unordered_map>
+using namespace std;
+
+class Solution {
+	bool dfs(vector<unordered_set<int> >  &vertices, vector<int> &visited, int curr, vector<int> &marked) {
+		if (marked[curr])
+			return true;
+		visited[curr] = 1;
+		for (int i : vertices[curr]) {
+			if (visited[i])
+				return false;
+			bool res = dfs(vertices, visited, i, marked);
+			if (!res)
+				return false;
+		}
+		marked[curr] = 1;
+		visited[curr] = 0;
+		return true;
+	}
+public:
+	bool canFinish(int numCourses, vector<pair<int, int>>& prerequisites) {
+		unordered_set<int>  st;
+		vector<unordered_set<int> >  vertices(numCourses, st);
+		vector<int> hasParents(numCourses);
+		int first, second;
+		for (auto it : prerequisites) {
+			first = it.first;
+			second = it.second;
+			hasParents[second] = 1;
+			vertices[first].insert(second);
+		}
+		if (*min_element(hasParents.begin(), hasParents.end()))
+			return false;
+		vector<int> marked(numCourses);
+		for (int i = 0; i < numCourses; ++i) {
+			vector<int> visited(numCourses);
+			bool res = dfs(vertices, visited, i, marked);
+			if (!res)
+				return false;
+		}
+		return true;
+	}
+};
+
+
+
+
+int main() {
+	Solution s;
+	vector<pair<int, int> > arr;
+	arr.push_back(make_pair(1, 0));
+	arr.push_back(make_pair(2, 6));
+	arr.push_back(make_pair(1, 7));
+	arr.push_back(make_pair(5, 1));
+	arr.push_back(make_pair(6, 4));
+	arr.push_back(make_pair(7, 0));
+	arr.push_back(make_pair(0, 5));
+	arr.push_back(make_pair(5, 1));
+	arr.push_back(make_pair(6, 4));
+	cout << s.canFinish(8, arr) << endl;
+}

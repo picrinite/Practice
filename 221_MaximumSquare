@@ -1,0 +1,56 @@
+/* Question
+Given a 2D binary matrix filled with 0's and 1's, find the largest square containing all 1's and return its area.
+
+For example, given the following matrix:
+
+1 0 1 0 0
+1 0 1 1 1
+1 1 1 1 1
+1 0 0 1 0
+Return 4.
+*/
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <unordered_set>
+#include <unordered_map>
+using namespace std;
+//110815
+class Solution {
+public:
+	int maximalSquare(vector<vector<char>>& matrix) {
+		int nRow = matrix.size();
+		if (!nRow)
+			return 0;
+		int nColumn = matrix[0].size();
+		if (!nColumn)
+			return 0;
+		vector<int> vec(nColumn);
+		vector<vector<int> > table(nRow, vec);
+		int max = 0;
+		for (int i = 0; i < nColumn; ++i) {
+			table[0][i] = matrix[0][i] - '0';
+			if (table[0][i] > max)
+				max = table[0][i];
+		}
+		for (int j = 0; j < nRow; ++j) {
+			table[j][0] = matrix[j][0] - '0';
+			if (table[j][0] > max)
+				max = table[j][0];
+		}
+		for (int i = 1; i < nRow; ++i)
+			for (int j = 1; j < nColumn; ++j) {
+				if (matrix[i][j] == '1') {
+					int tmp = min(table[i - 1][j - 1], table[i][j - 1]);
+					table[i][j] = min(tmp, table[i - 1][j]) + 1;
+					if (table[i][j] > max)
+						max = table[i][j];
+				}
+			}
+		return max * max;
+	}
+};

@@ -1,0 +1,104 @@
+#include <vector>
+#include <cstdio>
+#include <climits>
+#include <cmath>
+using namespace std;
+
+enum arioperator {
+	plus, minus, multiply, divide, swap_minus, swap_divide
+};
+
+double calculate(double left, double right, arioperator op) {
+	switch(op) {
+	case(arioperator::plus):
+			return left + right;
+	case(arioperator:: minus):
+			return left - right;
+	case(multiply):
+		return left * right;
+	case(divide):
+		return left / right;
+	case(swap_minus):
+		return right - left;
+	case(swap_divide):
+		return right / left;
+	default:
+		return INT_MIN;
+	}
+}
+
+bool validFormat(double left, double right, arioperator op) {
+	if (op == divide && right == 0)
+		return false;
+	if (op == swap_divide && left == 0)
+		return false;
+	return true;
+}
+
+// (a op b) op c op d
+bool patternA(vector<double> &nums, vector<arioperator> &ops) {
+	double res;
+	if (!validFormat(nums[0], nums[1], ops[0]))	return false;
+	res = calculate(nums[0], nums[1], ops[0]);
+	if (!validFormat(res, nums[2], ops[1]))	return false;
+	res = calculate(res, nums[2], ops[1]);
+	if (!validFormat(res, nums[3], ops[2]))	return false;
+	res = calculate(res, nums[3], ops[2]);
+	return fabs(res - 24) < 1e-8;
+}
+
+// (a op b) op (c op d)
+bool patternB(vector<double> &nums, vector<arioperator> &ops) {
+	double res1, res2, res3;
+	if (!validFormat(nums[0], nums[1], ops[0]))	return false;
+	res1 = calculate(nums[0], nums[1], ops[0]);
+	if (!validFormat(nums[2], nums[3], ops[2]))	return false;
+	res2 = calculate(nums[2], nums[3], ops[2]);
+	if (!validFormat(res1, res2, ops[1]))	return false;
+	res3 = calculate(res1, res2, ops[1]);
+	return fabs(res3 - 24) < 1e-8;
+}
+
+bool makeOperation(vector<double> &nums, vector<arioperator> &ops) {
+	if (ops.size() == 3)
+		return patternA(nums, ops) ? true : patternB(nums, ops);
+	for (int op = arioperator::plus; op != swap_divide; ++op) {
+		ops.push_back(static_cast<arioperator>(op));
+		bool ret = makeOperation(nums, ops);
+		ops.pop_back();
+		if (ret)  return true;
+	}
+	return false;
+}
+
+bool makeNumber(vector<bool> &used, vector<double> &nums, vector<int> &numInput, vector<arioperator> &ops) {
+	if (nums.size() == 4)
+		return makeOperation(nums, ops);
+	for (int i = 0; i < 4; ++i) {
+		if (!used[i]) {
+			nums.push_back(numInput[i]);
+			used[i] = true;
+			bool ret = makeNumber(used, nums, numInput, ops);
+			nums.pop_back();
+			used[i] = false;
+			if (ret) return true;
+		}
+	}
+	return false;
+}
+
+int main() {
+	int n;
+	vector<int> numInput(4);
+	vector<double> nums;
+	vector<bool> used(4);
+	vector<arioperator> ops;
+	scanf("%d", &n);
+	while (n--) {
+		for (int i = 0; i < 4; ++i) {
+			scanf("%d", &numInput[i]);
+		}
+		printf("%s\n", makeNumber(used, nums, numInput, ops) ? "Yes" : "No");
+	}
+	return 0;
+}

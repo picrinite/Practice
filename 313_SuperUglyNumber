@@ -1,0 +1,103 @@
+/* Question
+Write a program to find the nth super ugly number.
+
+Super ugly numbers are positive numbers whose all prime factors are in the given prime list primes of size k. For example, [1, 2, 4, 7, 8, 13, 14, 16, 19, 26, 28, 32] is the sequence of the first 12 super ugly numbers given primes = [2, 7, 13, 19] of size 4.
+
+Note:
+(1) 1 is a super ugly number for any given primes.
+(2) The given numbers in primes are in ascending order.
+(3) 0 < k ≤ 100, 0 < n ≤ 106, 0 < primes[i] < 1000.
+*/
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <unordered_set>
+#include <unordered_map>
+using namespace std;
+//120515
+class Solution {
+	struct MyComparator{
+		bool operator()(const pair<int, int> & p1, const pair<int, int> & p2) {
+			return p1.second > p2.second;
+		}
+	};
+public:
+	int nthSuperUglyNumber(int n, vector<int>& primes) {
+		if (n == 1)
+			return 1;
+		int sizePrime = primes.size();
+		vector<int> uglyNums;
+		unordered_map<int, int>  mpIndexForPrime;   // key is prime, value is the index in array uglyNums
+		unordered_set<int> stNumsInHeap;   // avoid duplicated numbers in set
+		uglyNums.push_back(1);
+		priority_queue<pair<int, int>, vector<pair<int, int>>, MyComparator>   qu;
+		for (int i = 0; i < primes.size(); ++i) {
+			qu.push(make_pair(primes[i], primes[i]));
+			mpIndexForPrime[primes[i]] = 0;
+			stNumsInHeap.insert(primes[i]);
+		}
+		int cnt = n - 1;
+		pair<int, int>  p;
+		while (cnt--) {          // n lgk
+			p = qu.top();
+			qu.pop();
+			uglyNums.push_back(p.second);
+			int prime = p.first;
+			int start = mpIndexForPrime[prime] + 1;
+			while (true) {
+				int nextNum = uglyNums[start] * prime;
+				if (stNumsInHeap.find(nextNum) != stNumsInHeap.end())
+					++start;
+				else {
+					mpIndexForPrime[prime] = start;
+					qu.push(make_pair(prime, nextNum));
+					stNumsInHeap.insert(nextNum);
+					break;
+				}
+			}
+		}
+		return uglyNums[n - 1];
+	}
+};
+//120515  TLE
+/*
+class Solution {
+public:
+	int nthSuperUglyNumber(int n, vector<int>& primes) {
+		vector<int> uglyNums(n);
+		uglyNums[0] = 1;
+		vector<int>::iterator it;
+		int target;
+		for (int size = 1; size < n; ++size) {
+			int next = INT_MAX;
+			int curr = uglyNums[size - 1];
+			for (int j = 0; j < primes.size(); ++j) {
+				target = curr / primes[j] + 1;
+				it = lower_bound(uglyNums.begin(), uglyNums.begin() + size, target);
+				int tmp = *it * primes[j];
+				if (tmp - curr == 1) {
+					next = tmp;
+					break;
+				}
+				next = min(next, tmp);
+			}
+			uglyNums[size] = next;
+		}
+		return uglyNums.back();
+	}
+};
+*/
+
+int main() {
+	Solution s;
+	//vector<int> primes{ 2, 7, 13, 19 };
+	//cout << s.nthSuperUglyNumber(12, primes) << endl;
+
+	//132268
+	vector<int> primes{ 2,3,5,13,19,29,31,41,43,53,59,73,83,89,97,103,107,109,127,137,139,149,163,173,179,193,197,199,211,223,227,229,239,241,251,257,263,269,271,281,317,331,337,347,353,359,367,373,379,389,397,409,419,421,433,449,457,461,463,479,487,509,521,523,541,547,563,569,577,593,599,601,613,619,631,641,659,673,683,701,709,719,733,739,743,757,761,769,773,809,811,829,857,859,881,919,947,953,967,971 };
+	cout << s.nthSuperUglyNumber(20000, primes) << endl;
+}

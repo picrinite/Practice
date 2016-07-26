@@ -1,0 +1,115 @@
+/* Question
+Given an array of n integers where n > 1, nums, return an array output such that output[i] is equal to the product of all the elements of nums except nums[i].
+
+Solve it without division and in O(n).
+
+For example, given [1,2,3,4], return [24,12,8,6].
+
+Follow up:
+Could you solve it with constant space complexity? (Note: The output array does not count as extra space for the purpose of space complexity analysis.)
+*/
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <unordered_set>
+#include <unordered_map>
+using namespace std;
+
+struct ListNode {
+	int val;
+	ListNode *next;
+	ListNode(int x) : val(x), next(NULL) {}
+};
+struct TreeNode {
+	int val;
+	TreeNode *left;
+	TreeNode *right;
+	TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+/*
+  vecLeft[i] is the product of i numbers on the left of array
+  vecRight[i] is the product of i numbers on the right of array
+  result[i] = vecLeft[i] * vecRight[size - 1 - i]
+*/
+class Solution {
+public:
+	vector<int> productExceptSelf(vector<int>& nums) {
+		int size = nums.size();
+		vector<int> vecLeft(size + 1);
+		vector<int> vecRight(size + 1);
+		vecLeft[0] = vecRight[0] = 1;
+		for (int i = 0; i < size; ++i)
+			vecLeft[i + 1] = vecLeft[i] * nums[i];
+		for (int i = size - 1; i >= 0; --i)
+			vecRight[size - i] = vecRight[size - i - 1] * nums[i];
+		vector<int> res(size);
+		for (int i = 0; i < size; ++i)
+			res[i] = vecLeft[i] * vecRight[size - 1 - i];
+		return res;
+	}
+};
+//103115  one wrong,  numbers could be zero
+/*
+class Solution {
+	// dividend  = n * divider
+	int mydivide(int dividend, int divider) {
+		if (divider == 0)
+			return dividend;
+		int signDividend = dividend > 0 ? 1 : -1;
+		int signDivider = divider > 0 ? 1 : -1;
+		if (signDividend < 0)
+			dividend = -dividend;
+		if (signDivider < 0)
+			divider = -divider;
+		int ret = 0;
+		int b;
+		while (dividend) {
+			b = divider;
+			int res = 1;
+			while (INT_MAX - b >= b && b * 2 < dividend) {
+				b *= 2;
+				res *= 2;
+			}
+			dividend -= b;
+			ret += res;
+		}
+		return ret * signDivider * signDividend;
+	}
+public:
+	vector<int> productExceptSelf(vector<int>& nums) {
+		vector<int> ret;
+		int size = nums.size();
+		if (size < 2)
+			return ret;
+		int productAll = 1;
+		int nZeros = 0;
+		for (int val : nums)
+			if (val != 0)
+				productAll *= val;
+			else
+				++nZeros;
+		for (int val : nums) {
+			if (nZeros > 1)
+				ret.push_back(0);
+			else if (nZeros == 1)
+				ret.push_back(val == 0 ? productAll : 0);
+			else
+				ret.push_back(mydivide(productAll, val));
+		}
+		return ret;
+	}
+};
+*/
+
+int main() {
+	Solution s;
+	vector<int> vec{0, -1, 2,3,4};
+	vector<int> res;
+	res = s.productExceptSelf(vec);
+	for (int i : res)
+		cout << i << ",";
+}

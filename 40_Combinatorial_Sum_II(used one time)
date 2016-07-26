@@ -1,0 +1,82 @@
+/* Question
+Given a collection of candidate numbers (C) and a target number (T), find all unique combinations in C where the candidate numbers sums to T.
+
+Each number in C may only be used once in the combination.
+
+Note:
+All numbers (including target) will be positive integers.
+Elements in a combination (a1, a2, … , ak) must be in non-descending order. (ie, a1 ≤ a2 ≤ … ≤ ak).
+The solution set must not contain duplicate combinations.
+For example, given candidate set 10,1,2,7,6,1,5 and target 8,
+A solution set is:
+[1, 7]
+[1, 2, 5]
+[2, 6]
+[1, 1, 6]
+
+*/
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <set>
+using namespace std;
+
+struct ListNode {
+	int val;
+	ListNode *next;
+	ListNode(int x) : val(x), next(NULL) {}
+};
+//102515   improved
+class Solution {
+	void getComSum(vector<vector<int> > &ret, vector<int> &solution, vector<int>& candidates, int index, int sum, int target) {
+		if (sum == target) {
+			ret.push_back(solution);
+			return;
+		}
+		if (sum > target)
+			return;
+		int record = -1;
+		for (int i = index; i < candidates.size(); ++i) {
+			if (candidates[i] == record)
+				continue;
+			record = candidates[i];
+			solution.push_back(candidates[i]);
+			getComSum(ret, solution, candidates, i + 1, sum + candidates[i], target);
+			solution.pop_back();
+		}
+	}
+public:
+	vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
+		int len = 0, sum = 0;
+		vector<vector<int> > ret;
+		vector<int> solution;
+		int index = 0;
+		sort(candidates.begin(), candidates.end());
+		getComSum(ret, solution, candidates, index, sum, target);
+		return ret;
+	}
+};
+int main() {
+	Solution s;
+	//int v1[4] = {2,3,6,7};  //[2,2,3], [7]
+	//int v1[7] = { 4, 7, 8, 2,3,6,7 }; // [2,2,3], [3,4], [7]
+	int v1[7] = { 10,1,2,7,6,1,5 }; 
+	/*  target = 8
+		[1,1,6,]
+		[1,2,5,]
+		[1, 7, ]
+		[2, 6, ]*/
+	vector<int> vec(v1, &v1[7]);
+	vector<vector<int> > res;
+	res = s.combinationSum2(vec, 8);
+	int i, j;
+	for (i = 0; i < res.size(); ++i) {
+		cout << "[";
+		for (j = 0; j < res[i].size(); ++j)
+			cout << res[i][j] << ",";
+		cout << "]" << endl;
+	}
+	return 0;
+}

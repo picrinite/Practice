@@ -1,0 +1,41 @@
+/* Question
+There is a fence with n posts, each post can be painted with one of the k colors.
+
+You have to paint all the posts such that no more than two adjacent fence posts have the same color.
+
+Return the total number of ways you can paint the fence.
+
+Note:
+n and k are non-negative integers.
+*/
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <unordered_set>
+#include <unordered_map>
+using namespace std;
+//113015
+class Solution {
+public:
+	int numWays(int n, int k) {
+		if (n == 0) return 0;
+		if (n == 1) return k;
+		int diff_count = k * (k - 1);
+		int same_count = k;
+		for (int i = 3; i < n; ++i) {
+			int tmp = diff_count;
+			diff_count = (diff_count + same_count) * (k - 1);
+			same_count = diff_count;
+		}
+		return same_count + diff_count;
+	}
+};
+int main() {
+	Solution s;
+	cout << s.numWays(5, 3) << endl;
+
+}

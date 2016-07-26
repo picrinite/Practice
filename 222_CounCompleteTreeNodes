@@ -1,0 +1,77 @@
+/* Question
+Given a complete binary tree, count the number of nodes.
+
+Definition of a complete binary tree from Wikipedia:
+In a complete binary tree every level, except possibly the last, is completely filled, and all nodes in the last level are as far left as possible. It can have between 1 and 2h nodes inclusive at the last level h.
+*/
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <unordered_set>
+#include <unordered_map>
+using namespace std;
+
+struct TreeNode {
+	int val;
+	TreeNode *left;
+	TreeNode *right;
+	TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+	int countNodes(TreeNode* root) {
+		int height = 0;
+		TreeNode* tmp = root;
+		while (tmp) {
+			++height;
+			tmp = tmp->left;
+		}
+		if (height < 2)
+			return height;
+		int ret = pow(2, height - 1) - 1;
+		while (height > 2) {
+			TreeNode *tmp = root->right;
+			int h = 0;
+			while (tmp) {
+				++h;
+				tmp = tmp->left;
+			}
+			if (h == height - 1) {
+				ret += pow(2, height - 2);
+				root = root->right;
+			}
+			else
+				root = root->left;
+			--height;
+		}
+		if (root->left)
+			++ret;
+		if (root->right)
+			++ret;
+		return ret;
+	}
+};
+
+
+int main() {
+	Solution s;
+	/*
+		3
+		/ \
+		9  20
+		/ \  /
+		15 7 19
+		*/
+	TreeNode three(3), nine(9), twenty(20), fifteen(15), seven(7), nineteen(19);
+	three.left = &nine;
+	three.right = &twenty;
+	nine.left = &fifteen;
+	nine.right = &seven;
+	twenty.left = &nineteen;
+	cout << s.countNodes(&three) << endl;
+}

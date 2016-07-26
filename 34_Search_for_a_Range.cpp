@@ -17,11 +17,71 @@ return [3, 4]
 #include  <vector>
 using namespace std;
 
-struct ListNode {
-	int val;
-	ListNode *next;
-	ListNode(int x) : val(x), next(NULL) {}
+//120715  search for lower_bound , upper_bound
+class Solution {
+public:
+	vector<int> searchRange(vector<int>& nums, int target) {
+		vector<int> ret;
+		int left = 0, right = nums.size() - 1, mid;
+		while (left < right) {
+			mid = left + (right - left) / 2;
+			if (nums[mid] >= target)
+				right = mid;
+			else
+				left = mid + 1;
+		}
+		if (nums[left] != target) {
+			ret.insert(ret.begin(), 2, -1);
+			return ret;
+		}
+		ret.push_back(left);
+		left = 0;
+		right = nums.size() - 1;
+		while (left < right) {
+			mid = left + (right - mid) / 2;
+			if (nums[mid] <= target)
+				left = mid + 1;
+			else
+				right = mid;
+		}
+		ret.push_back(left - 1);
+		return ret;
+	}
 };
+
+//103125, my own method , easy for me to understand and code
+/*
+class Solution {
+public:
+	vector<int> searchRange(vector<int>& nums, int target) {
+		vector<int> ret;
+		int left = 0, right = nums.size() - 1, mid;
+		while (left < right) {
+			mid = left + (right - left) / 2;
+			if (nums[mid] >= target)
+				right = mid;
+			else
+				left = mid + 1;
+		}
+		if (nums[left] != target) {
+			ret.insert(ret.begin(), 2, -1);
+			return ret;
+		}
+		ret.push_back(left);
+		left = 0;
+		right = nums.size() - 1;
+		while (left < right) {
+			mid = left + (right - mid) / 2 + 1;    // Here is the trick to avoid dead loop
+			if (nums[mid] <= target)
+				left = mid;
+			else
+				right = mid - 1;
+		}
+		ret.push_back(left);
+		return ret;
+	}
+};
+*/
 // 102515  Yiran's reference
 // https://github.com/avocadoccme/leetcode-practice/blob/master/Search%20for%20a%20Range.py
 class Solution {

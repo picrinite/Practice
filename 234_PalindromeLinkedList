@@ -1,0 +1,59 @@
+/* Question
+iven a singly linked list, determine if it is a palindrome.
+
+Follow up:
+Could you do it in O(n) time and O(1) space?
+*/
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <unordered_set>
+#include <unordered_map>
+using namespace std;
+
+struct ListNode {
+	int val;
+	ListNode *next;
+	ListNode(int x) : val(x), next(NULL) {}
+};
+
+class Solution {
+	ListNode* isValid(ListNode* head, int len) {
+		if (len == 1)
+			return head;
+		if (len == 2)
+			return head->val == head->next->val ? head->next : NULL;
+		ListNode* last = isValid(head->next, len - 2);
+		if (!last)  // len - 2 is not palindrome
+			return NULL;
+		return head->val == last->next->val ? last->next : NULL;
+	}
+public:
+	bool isPalindrome(ListNode* head) {
+		int len = 0;
+		ListNode* tmp = head;
+		while (tmp) {
+			++len;
+			tmp = tmp->next;
+		}
+		if (len < 2)
+			return true;
+		return isValid(head, len);
+	}
+};
+
+
+int main() {
+	Solution s;
+	ListNode one(3), two(2), three(3), four(3), five(3), six(3);
+	one.next = &two;
+	two.next = &three;
+	three.next = &four;
+	four.next = &five;
+	five.next = &six;
+	cout << s.isPalindrome(&one) << endl;
+}

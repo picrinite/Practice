@@ -1,0 +1,82 @@
+/* Question
+Remove the minimum number of invalid parentheses in order to make the input string valid. Return all possible results.
+
+Note: The input string may contain letters other than the parentheses ( and ).
+
+Examples:
+"()())()" -> ["()()()", "(())()"]
+"(a)())()" -> ["(a)()()", "(a())()"]
+")(" -> [""]
+*/
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <unordered_set>
+#include <unordered_map>
+using namespace std;
+//110415 
+class Solution {
+	void dfs(string &s, string curr, int nLeft, int nRight, int index, int max, vector<string> &st) {
+		if (index >= s.size()){
+			if(nLeft == nRight && nLeft == max)
+				st.push_back(curr);
+			return;
+		}
+		if (s[index] == '(') {
+			int start = index;
+			while (++index < s.size() && s[index] == '(');
+			int cnt = index - start;
+			for (int i = 0; i <= cnt; ++i) {
+				string tmp(i, '(');
+				dfs(s, curr + tmp, nLeft + i, nRight, index, max, st);
+			}
+		}
+		else if (s[index] == ')') {
+			int start = index;
+			while (++index < s.size() && s[index] == ')');
+			int cnt = index - start;
+			for (int i = 0; i <= cnt && nRight + i <= nLeft; ++i) {
+				string tmp(i, ')');
+				dfs(s, curr + tmp, nLeft, nRight + i, index, max, st);
+			}
+		}
+		else
+			dfs(s, curr + s[index], nLeft, nRight, index + 1, max, st);
+	}
+public:
+	vector<string> removeInvalidParentheses(string s) {
+		//unordered_set<string> st;
+		int nLeftParen = 0;
+		int max = 0;
+		for (char ch : s) {
+			if (ch == '(')
+				++nLeftParen;
+			else if (ch == ')' && nLeftParen) {
+				--nLeftParen;
+				++max;
+			}
+		}
+		vector<string> vec;
+		dfs(s, "", 0, 0, 0, max, vec);
+		//vector<string> vec{ st.begin(), st.end() };
+		return vec;
+	}
+};
+
+
+int main() {
+	Solution s;
+	//string str("()())()");
+	//string str("(a)())()");
+	//string str(")(");
+	string str("((((()())))))");
+	vector<string> res;
+	res = s.removeInvalidParentheses(str);
+	for (string &str : res) {
+		cout << str << ",   ";
+	}
+}
