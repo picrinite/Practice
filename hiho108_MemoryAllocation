@@ -1,0 +1,83 @@
+#include <queue>
+#include <set>
+#include <map>
+#include <algorithm>
+#include <iostream>
+using namespace std;
+
+// guarantees segment exists
+void removeSegment(int start, int len, map<int, int> &mpStartLen, map<int, set<int> > &mpLenStarts) {
+    mpStartLen.erase(start);
+    map<int, set<int> >::iterator it = mpLenStarts.find(len);
+    it->second.erase(start);
+    if (it->second.empty())
+        mpLenStarts.erase(it);
+}
+
+void addSegment(int start, int len, map<int, int> &mpStartLen, map<int, set<int> > &mpLenStarts) {
+    mpStartLen[start] = len;
+    if (mpLenStarts.find(len) == mpLenStarts.end()) {
+        mpLenStarts[len] = set<int>{ start };
+    }
+    else
+        mpLenStarts[len].insert(start);
+}
+
+int main() {
+    int N, M, K;
+    scanf("%d%d", &N, &M);
+    map<int, int> mpStartLen;  // pair<start_position, length>  value is zero
+    mpStartLen[0] = M;
+    queue<pair<int, int> > q;  // pair<start_position, length>
+    map<int, set<int> > mpLenStarts;
+    map<int, int>::iterator itStartLen;
+    map<int, set<int> >::iterator itLenStarts;
+    set<int>::iterator itStarts;
+    mpLenStarts[M] = set<int>{ 0 };
+    mpStartLen[0] = M;
+    for (int i = 1; i <= N; ++i) {
+        scanf("%d", &K);
+        while (true) {
+            itLenStarts = mpLenStarts.lower_bound(K);
+            if (itLenStarts == mpLenStarts.end()) {
+                int deleteStart = q.front().first;
+                int deleteLen = q.front().second;
+                q.pop();
+                itStartLen = mpStartLen.lower_bound(deleteStart);
+                if (itStartLen != mpStartLen.end()) {
+                    if (itStartLen->first == deleteStart + deleteLen) {
+                        deleteLen += itStartLen->second;
+                        removeSegment(itStartLen->first, itStartLen->second, mpStartLen, mpLenStarts);
+                    }
+                }
+                if (!mpStartLen.empty()) {
+                    itStartLen = mpStartLen.lower_bound(deleteStart);
+                    if (itStartLen != mpStartLen.begin()) {
+                        --itStartLen;
+                        if (itStartLen->first + itStartLen->second == deleteStart) {
+                            deleteStart = itStartLen->first;
+                            deleteLen += itStartLen->second;
+                            removeSegment(itStartLen->first, itStartLen->second, mpStartLen, mpLenStarts);
+                        }
+                    }
+                }
+                addSegment(deleteStart, deleteLen, mpStartLen, mpLenStarts);
+            }
+            else
+                break;
+        }
+        int lenFull = itLenStarts->first;
+        itStarts = itLenStarts->second.begin();
+        int iStart = *itStarts;
+        removeSegment(iStart, lenFull, mpStartLen, mpLenStarts);
+        if (lenFull > K) {
+            addSegment(iStart + K, lenFull - K, mpStartLen, mpLenStarts);
+        }
+        q.push(make_pair(iStart, K));
+    }
+    int number = N - q.size() + 1;
+    while (!q.empty()) {
+        cout << number++ << " " << q.front().first << endl;
+        q.pop();
+    }
+}
