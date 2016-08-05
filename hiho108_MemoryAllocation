@@ -5,6 +5,69 @@
 #include <iostream>
 using namespace std;
 
+int main() {
+	int N, M, K;
+	scanf("%d%d", &N, &M);
+	map<int, int> mpStartLen;  // pair<start_position, length>  value is zero
+	mpStartLen[0] = M;
+	queue<pair<int, int> > q;  // pair<start_position, length>
+	map<int, int>::iterator it;
+	set<int>::iterator itStarts;
+	for (int i = 1; i <= N; ++i) {
+		scanf("%d", &K);
+		while (true) {
+			for (it = mpStartLen.begin(); it != mpStartLen.end(); ++it)
+				if (it->second >= K) break;
+			if (it == mpStartLen.end()) {
+				int deleteStart = q.front().first;
+				int deleteLen = q.front().second;
+				q.pop();
+				it = mpStartLen.lower_bound(deleteStart);
+				if (it != mpStartLen.end()) {
+					if (it->first == deleteStart + deleteLen) {
+						deleteLen += it->second;
+						mpStartLen.erase(it);
+					}
+				}
+				it = mpStartLen.lower_bound(deleteStart);
+				if (it != mpStartLen.begin()) {
+					--it;
+					if (it->first + it->second == deleteStart) {
+						deleteStart = it->first;
+						deleteLen += it->second;
+						mpStartLen.erase(it);
+					}
+				}		
+				mpStartLen[deleteStart] = deleteLen;
+			}
+			else
+				break;
+		}
+		int lenFull = it->second;
+		int iStart = it->first;
+		mpStartLen.erase(iStart);
+		if (lenFull > K) {
+			mpStartLen[iStart + K] = lenFull - K;
+		}
+		q.push(make_pair(iStart, K));
+	}
+	int number = N - q.size() + 1;
+	while (!q.empty()) {
+		cout << number++ << ' ' << q.front().first << endl;
+		q.pop();
+	}
+}
+
+
+// improve how to look for empty slot from left, use lower_bound
+/*
+#include <queue>
+#include <set>
+#include <map>
+#include <algorithm>
+#include <iostream>
+using namespace std;
+
 // guarantees segment exists
 void removeSegment(int start, int len, map<int, int> &mpStartLen, map<int, set<int> > &mpLenStarts) {
     mpStartLen.erase(start);
@@ -81,3 +144,4 @@ int main() {
         q.pop();
     }
 }
+*/
